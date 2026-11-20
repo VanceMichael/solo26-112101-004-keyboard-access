@@ -1,0 +1,61 @@
+[
+  {
+    "path": "/bulletin",
+    "stage": "initial",
+    "method": "GET",
+    "status": 200,
+    "expected": {
+      "path": [
+        "modes"
+      ],
+      "value": [
+        "district",
+        "kiosk"
+      ]
+    }
+  },
+  {
+    "path": "/release",
+    "stage": "initial",
+    "method": "GET",
+    "status": 200,
+    "expected": {
+      "path": [
+        "district",
+        "community"
+      ],
+      "value": "C3"
+    }
+  },
+  {
+    "path": "/signup/kiosk",
+    "stage": "initial",
+    "method": "GET",
+    "status": 200,
+    "expected": {
+      "includes": "data-publication=\"1\""
+    }
+  },
+  {
+    "path": "/release",
+    "stage": "release2",
+    "method": "GET",
+    "status": 200,
+    "expected": {
+      "path": [
+        "kiosk",
+        "help"
+      ],
+      "value": "H2"
+    }
+  },
+  {
+    "path": "/signup/district",
+    "stage": "release2",
+    "method": "GET",
+    "status": 200,
+    "expected": {
+      "includes": "data-publication=\"2\""
+    }
+  }
+]

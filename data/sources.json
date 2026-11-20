@@ -1,0 +1,76 @@
+{
+  "stages": {
+    "initial": {
+      "GET /bulletin": {
+        "data": {
+          "event": "F-05",
+          "name": "社区法治开放日",
+          "modes": [
+            "district",
+            "kiosk"
+          ],
+          "audiences": [
+            "community",
+            "work",
+            "desk"
+          ],
+          "traversalMinutes": 15
+        }
+      },
+      "GET /signup/district": {
+        "type": "text/html; charset=utf-8",
+        "text": "<!doctype html><html lang=\"zh\"><meta charset=utf-8><main data-publication=\"1\" data-area=\"district\">\n<h1>法治活动报名</h1><p>请选择参与身份</p>\n<label>场景 <select id=\"audience\"><option value=\"\">未选择</option><option value=\"community\">社区居民</option><option value=\"work\">流动职工</option><option value=\"desk\">柜台接待</option></select></label>\n<div id=\"screen\"></div>\n</main>\n<script type=\"module\">\nconst screen = document.querySelector('#screen');\nconst audience = document.querySelector('#audience');\nconst drafts = new Map();\nconst forms = { community: 'C3', work: 'W3' };\nfunction render() {\n const who = audience.value;\n if (!who) { screen.replaceChildren(); return; }\n if (who === 'desk') { screen.innerHTML = '<p role=\"status\">请到现场人工接待</p>'; return; }\n screen.innerHTML = '<section aria-label=\"报名信息\" data-form=\"' + forms[who] + '\"><h2>活动报名表</h2>' +\n  '<label>联系号码 <input id=\"contact\"></label><button id=\"help\">填写帮助</button><button id=\"review\">检查内容</button><button id=\"back\">回到选择</button></section>';\n const contact = document.querySelector('#contact');\n contact.value = drafts.get(who) ?? '';\n contact.addEventListener('input', () => drafts.set(who, contact.value));\n document.querySelector('#help').onclick = () => {\n  if (document.querySelector('dialog')) return;\n  const dialog = document.createElement('dialog');\n  dialog.dataset.component = 'H1';\n  const change = 'district' === 'district' || who === 'work';\n  dialog.innerHTML = '<h3>填写帮助</h3>' + (change ? \"<button id=\\\"tip\\\">关闭帮助</button>\" : '<button id=\"tip\">关闭帮助</button>');\n  screen.append(dialog);\n  dialog.showModal();\n  dialog.querySelector('#tip').focus();\n  dialog.querySelector('button').onclick = () => dialog.close();\n  dialog.onclose = () => { dialog.remove(); document.querySelector('#help').focus(); };\n };\n document.querySelector('#review').onclick = () => {\n   screen.innerHTML = '<section aria-label=\"确认前预览\"><p>' + (drafts.get(who) ? '已有草稿' : '尚无草稿') +\n     '</p><button id=\"edit\">返回编辑</button><button id=\"confirm\">确认报名</button></section>';\n   document.querySelector('#edit').onclick = render;\n   document.querySelector('#confirm').onclick = () => fetch('/signup/confirmed', {method:'POST'});\n };\n document.querySelector('#back').onclick = () => {\n   if (who === 'work') drafts.delete(who);\n   audience.value = '';\n   render();\n   audience.focus();\n };\n}\naudience.onchange = render;\n</script></html>"
+      },
+      "GET /signup/kiosk": {
+        "type": "text/html; charset=utf-8",
+        "text": "<!doctype html><html lang=\"zh\"><meta charset=utf-8><main data-publication=\"1\" data-area=\"kiosk\">\n<h1>法治活动报名</h1><p>请选择参与身份</p>\n<label>场景 <select id=\"audience\"><option value=\"\">未选择</option><option value=\"community\">社区居民</option><option value=\"work\">流动职工</option><option value=\"desk\">柜台接待</option></select></label>\n<div id=\"screen\"></div>\n</main>\n<script type=\"module\">\nconst screen = document.querySelector('#screen');\nconst audience = document.querySelector('#audience');\nconst drafts = new Map();\nconst forms = { community: 'C3', work: 'W3' };\nfunction render() {\n const who = audience.value;\n if (!who) { screen.replaceChildren(); return; }\n if (who === 'desk') { screen.innerHTML = '<p role=\"status\">请到现场人工接待</p>'; return; }\n screen.innerHTML = '<section aria-label=\"报名信息\" data-form=\"' + forms[who] + '\"><h2>活动报名表</h2>' +\n  '<label>联系号码 <input id=\"contact\"></label><button id=\"help\">填写帮助</button><button id=\"review\">检查内容</button><button id=\"back\">回到选择</button></section>';\n const contact = document.querySelector('#contact');\n contact.value = drafts.get(who) ?? '';\n contact.addEventListener('input', () => drafts.set(who, contact.value));\n document.querySelector('#help').onclick = () => {\n  if (document.querySelector('dialog')) return;\n  const dialog = document.createElement('dialog');\n  dialog.dataset.component = 'H1';\n  const change = 'kiosk' === 'district' || who === 'work';\n  dialog.innerHTML = '<h3>填写帮助</h3>' + (change ? \"<button id=\\\"tip\\\">关闭帮助</button>\" : '<button id=\"tip\">关闭帮助</button>');\n  screen.append(dialog);\n  dialog.showModal();\n  dialog.querySelector('#tip').focus();\n  dialog.querySelector('button').onclick = () => dialog.close();\n  dialog.onclose = () => { dialog.remove(); document.querySelector('#help').focus(); };\n };\n document.querySelector('#review').onclick = () => {\n   screen.innerHTML = '<section aria-label=\"确认前预览\"><p>' + (drafts.get(who) ? '已有草稿' : '尚无草稿') +\n     '</p><button id=\"edit\">返回编辑</button><button id=\"confirm\">确认报名</button></section>';\n   document.querySelector('#edit').onclick = render;\n   document.querySelector('#confirm').onclick = () => fetch('/signup/confirmed', {method:'POST'});\n };\n document.querySelector('#back').onclick = () => {\n   if (who === 'work') drafts.delete(who);\n   audience.value = '';\n   render();\n   audience.focus();\n };\n}\naudience.onchange = render;\n</script></html>"
+      },
+      "GET /release": {
+        "data": {
+          "revision": 1,
+          "district": {
+            "community": "C3",
+            "work": "W3",
+            "help": "H1"
+          },
+          "kiosk": {
+            "community": "C3",
+            "work": "W3",
+            "help": "H1"
+          }
+        }
+      },
+      "POST /signup/confirmed": {
+        "status": 422,
+        "data": {
+          "message": "本地站不接受正式报名"
+        }
+      }
+    },
+    "release2": {
+      "GET /signup/district": {
+        "type": "text/html; charset=utf-8",
+        "text": "<!doctype html><html lang=\"zh\"><meta charset=utf-8><main data-publication=\"2\" data-area=\"district\">\n<h1>法治活动报名</h1><p>请选择参与身份</p>\n<label>场景 <select id=\"audience\"><option value=\"\">未选择</option><option value=\"community\">社区居民</option><option value=\"work\">流动职工</option><option value=\"desk\">柜台接待</option></select></label>\n<div id=\"screen\"></div>\n</main>\n<script type=\"module\">\nconst screen = document.querySelector('#screen');\nconst audience = document.querySelector('#audience');\nconst drafts = new Map();\nconst forms = { community: 'C4', work: 'W3' };\nfunction render() {\n const who = audience.value;\n if (!who) { screen.replaceChildren(); return; }\n if (who === 'desk') { screen.innerHTML = '<p role=\"status\">请到现场人工接待</p>'; return; }\n screen.innerHTML = '<section aria-label=\"报名信息\" data-form=\"' + forms[who] + '\"><h2>活动报名表</h2>' +\n  '<label>联系号码 <input id=\"contact\"></label><button id=\"help\">填写帮助</button><button id=\"review\">检查内容</button><button id=\"back\">回到选择</button></section>';\n const contact = document.querySelector('#contact');\n contact.value = drafts.get(who) ?? '';\n contact.addEventListener('input', () => drafts.set(who, contact.value));\n document.querySelector('#help').onclick = () => {\n  if (document.querySelector('dialog')) return;\n  const dialog = document.createElement('dialog');\n  dialog.dataset.component = 'H2';\n  const change = 'district' === 'district' || who === 'work';\n  dialog.innerHTML = '<h3>填写帮助</h3>' + (change ? \"<div tabindex=\\\"0\\\" id=\\\"tip\\\">帮助内容</div><button id=\\\"leave\\\">关闭帮助</button>\" : '<button id=\"tip\">关闭帮助</button>');\n  screen.append(dialog);\n  dialog.showModal();\n  dialog.querySelector('#tip').focus();\n  dialog.querySelector('button').onclick = () => dialog.close();\n  dialog.onclose = () => { dialog.remove(); document.querySelector('#help').focus(); };\n };\n document.querySelector('#review').onclick = () => {\n   screen.innerHTML = '<section aria-label=\"确认前预览\"><p>' + (drafts.get(who) ? '已有草稿' : '尚无草稿') +\n     '</p><button id=\"edit\">返回编辑</button><button id=\"confirm\">确认报名</button></section>';\n   document.querySelector('#edit').onclick = render;\n   document.querySelector('#confirm').onclick = () => fetch('/signup/confirmed', {method:'POST'});\n };\n document.querySelector('#back').onclick = () => {\n   if (who === 'work') drafts.delete(who);\n   audience.value = '';\n   render();\n   audience.focus();\n };\n}\naudience.onchange = render;\n</script></html>"
+      },
+      "GET /signup/kiosk": {
+        "type": "text/html; charset=utf-8",
+        "text": "<!doctype html><html lang=\"zh\"><meta charset=utf-8><main data-publication=\"2\" data-area=\"kiosk\">\n<h1>法治活动报名</h1><p>请选择参与身份</p>\n<label>场景 <select id=\"audience\"><option value=\"\">未选择</option><option value=\"community\">社区居民</option><option value=\"work\">流动职工</option><option value=\"desk\">柜台接待</option></select></label>\n<div id=\"screen\"></div>\n</main>\n<script type=\"module\">\nconst screen = document.querySelector('#screen');\nconst audience = document.querySelector('#audience');\nconst drafts = new Map();\nconst forms = { community: 'C4', work: 'W3' };\nfunction render() {\n const who = audience.value;\n if (!who) { screen.replaceChildren(); return; }\n if (who === 'desk') { screen.innerHTML = '<p role=\"status\">请到现场人工接待</p>'; return; }\n screen.innerHTML = '<section aria-label=\"报名信息\" data-form=\"' + forms[who] + '\"><h2>活动报名表</h2>' +\n  '<label>联系号码 <input id=\"contact\"></label><button id=\"help\">填写帮助</button><button id=\"review\">检查内容</button><button id=\"back\">回到选择</button></section>';\n const contact = document.querySelector('#contact');\n contact.value = drafts.get(who) ?? '';\n contact.addEventListener('input', () => drafts.set(who, contact.value));\n document.querySelector('#help').onclick = () => {\n  if (document.querySelector('dialog')) return;\n  const dialog = document.createElement('dialog');\n  dialog.dataset.component = 'H2';\n  const change = 'kiosk' === 'district' || who === 'work';\n  dialog.innerHTML = '<h3>填写帮助</h3>' + (change ? \"<div tabindex=\\\"0\\\" id=\\\"tip\\\">帮助内容</div><button id=\\\"leave\\\">关闭帮助</button>\" : '<button id=\"tip\">关闭帮助</button>');\n  screen.append(dialog);\n  dialog.showModal();\n  dialog.querySelector('#tip').focus();\n  dialog.querySelector('button').onclick = () => dialog.close();\n  dialog.onclose = () => { dialog.remove(); document.querySelector('#help').focus(); };\n };\n document.querySelector('#review').onclick = () => {\n   screen.innerHTML = '<section aria-label=\"确认前预览\"><p>' + (drafts.get(who) ? '已有草稿' : '尚无草稿') +\n     '</p><button id=\"edit\">返回编辑</button><button id=\"confirm\">确认报名</button></section>';\n   document.querySelector('#edit').onclick = render;\n   document.querySelector('#confirm').onclick = () => fetch('/signup/confirmed', {method:'POST'});\n };\n document.querySelector('#back').onclick = () => {\n   if (who === 'work') drafts.delete(who);\n   audience.value = '';\n   render();\n   audience.focus();\n };\n}\naudience.onchange = render;\n</script></html>"
+      },
+      "GET /release": {
+        "data": {
+          "revision": 2,
+          "district": {
+            "community": "C4",
+            "work": "W3",
+            "help": "H2"
+          },
+          "kiosk": {
+            "community": "C4",
+            "work": "W3",
+            "help": "H2"
+          }
+        }
+      }
+    }
+  }
+}

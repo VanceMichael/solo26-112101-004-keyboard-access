@@ -1,0 +1,18 @@
+[
+  {
+    "event": "F-05",
+    "mode": "district",
+    "audiences": [
+      "community",
+      "work"
+    ]
+  },
+  {
+    "event": "F-05",
+    "mode": "kiosk",
+    "audiences": [
+      "desk",
+      "community"
+    ]
+  }
+]
