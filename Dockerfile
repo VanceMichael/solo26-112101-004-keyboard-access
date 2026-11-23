@@ -5,4 +5,5 @@ RUN npm ci --no-audit --no-fund
 COPY sources ./sources
 COPY data ./data
 COPY test ./test
+COPY tools ./tools
 CMD ["npm", "test"]
